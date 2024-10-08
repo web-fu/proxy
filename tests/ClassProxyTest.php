@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of web-fu/php-dot-notation
+ * This file is part of web-fu/proxy
  *
  * @copyright Web-Fu <info@web-fu.it>
  *
@@ -15,14 +15,14 @@ namespace WebFu\Proxy\Tests;
 
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use WebFu\Proxy\PathNotFoundException;
-use WebFu\Proxy\UnsupportedOperationException;
 use WebFu\Proxy\ClassProxy;
+use WebFu\Proxy\PathNotFoundException;
 use WebFu\Proxy\Tests\TestData\ChildClass;
 use WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties;
 use WebFu\Proxy\Tests\TestData\ClassWithComplexProperties;
 use WebFu\Proxy\Tests\TestData\ClassWithMagicMethods;
 use WebFu\Proxy\Tests\TestData\SimpleClass;
+use WebFu\Proxy\UnsupportedOperationException;
 use WebFu\Reflection\ReflectionType;
 
 /**

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * This file is part of web-fu/php-dot-notation
+ * This file is part of web-fu/proxy
  *
  * @copyright Web-Fu <info@web-fu.it>
  *
@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace WebFu\Proxy\Tests;
 
 use PHPUnit\Framework\TestCase;
-use WebFu\Proxy\ValueInitializer;
 use WebFu\Proxy\Tests\TestData\SimpleClass;
+use WebFu\Proxy\ValueInitializer;
 
 /**
  * @coversDefaultClass \WebFu\Proxy\ValueInitializer
