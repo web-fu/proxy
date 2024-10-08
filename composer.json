@@ -1,0 +1,46 @@
+{
+  "name": "web-fu/proxy",
+  "type": "library",
+  "description": "Library that allows to access array and object and proxy them",
+  "keywords": [
+    "php", "php8", "array", "object", "proxy"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Gabriele Manganello",
+      "email": "info@web-fu.it",
+      "homepage": "https://web-fu.it"
+    }
+  ],
+  "require": {
+    "php": "8.0.* || 8.1.* || 8.2.* || 8.3.*",
+    "web-fu/reflection": "^2.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "WebFu\\Proxy\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WebFu\\Proxy\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "friendsofphp/php-cs-fixer": "^3.13",
+    "phpstan/phpstan": "^1.9",
+    "vimeo/psalm": "^5.4"
+  },
+  "scripts": {
+    "cs": "PHP_CS_FIXER_IGNORE_ENV=1 php ./vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes --stop-on-violation",
+    "cs:fix": "PHP_CS_FIXER_IGNORE_ENV=1 php ./vendor/bin/php-cs-fixer fix --allow-risky=yes",
+    "phpstan": "./vendor/bin/phpstan analyse --memory-limit=-1",
+    "tests": "./vendor/bin/phpunit --stop-on-failure",
+    "ci": [
+      "@autoload",
+      "@parallel cs phpstan tests"
+    ]
+  }
+}
