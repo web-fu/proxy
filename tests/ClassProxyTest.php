@@ -15,14 +15,14 @@ namespace WebFu\Proxy\Tests;
 
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use WebFu\DotNotation\Exception\PathNotFoundException;
-use WebFu\DotNotation\Exception\UnsupportedOperationException;
+use WebFu\Proxy\PathNotFoundException;
+use WebFu\Proxy\UnsupportedOperationException;
 use WebFu\Proxy\ClassProxy;
-use WebFu\DotNotation\Tests\TestData\ChildClass;
-use WebFu\DotNotation\Tests\TestData\ClassWithAllowDynamicProperties;
-use WebFu\DotNotation\Tests\TestData\ClassWithComplexProperties;
-use WebFu\DotNotation\Tests\TestData\ClassWithMagicMethods;
-use WebFu\DotNotation\Tests\TestData\SimpleClass;
+use WebFu\Proxy\Tests\TestData\ChildClass;
+use WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties;
+use WebFu\Proxy\Tests\TestData\ClassWithComplexProperties;
+use WebFu\Proxy\Tests\TestData\ClassWithMagicMethods;
+use WebFu\Proxy\Tests\TestData\SimpleClass;
 use WebFu\Reflection\ReflectionType;
 
 /**

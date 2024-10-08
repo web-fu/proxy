@@ -15,7 +15,7 @@ namespace WebFu\Proxy\Tests;
 
 use PHPUnit\Framework\TestCase;
 use WebFu\Proxy\ValueInitializer;
-use WebFu\DotNotation\Tests\TestData\SimpleClass;
+use WebFu\Proxy\Tests\TestData\SimpleClass;
 
 /**
  * @coversDefaultClass \WebFu\Proxy\ValueInitializer

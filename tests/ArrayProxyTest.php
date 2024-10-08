@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace WebFu\Proxy\Tests;
 
 use PHPUnit\Framework\TestCase;
-use WebFu\DotNotation\Exception\PathNotFoundException;
+use WebFu\Proxy\PathNotFoundException;
 use WebFu\Proxy\ArrayProxy;
-use WebFu\DotNotation\Tests\TestData\SimpleClass;
+use WebFu\Proxy\Tests\TestData\SimpleClass;
 use WebFu\Reflection\ReflectionType;
 
 /**
