@@ -15,5 +15,6 @@ namespace WebFu\Proxy\Tests\TestData;
 
 class SimpleClass
 {
-    public string $public;
+    public string $public = 'public';
+    public string $notInitialised;
 }
