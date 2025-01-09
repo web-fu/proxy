@@ -35,29 +35,31 @@ class Proxy
      */
     public function has(int|string $key): bool
     {
-        if (is_object($this->element)) {
-            $reflection = new ReflectionClass($this->element);
-
-            $key = (string) $key;
-
-            if ($reflection->hasProperty($key)) {
-                return $reflection->getProperty($key)?->isPublic() ?? false;
-            }
-
-            if ($reflection->hasMethod('__get')) {
-                return $reflection->getMethod('__get')->isPublic();
-            }
-
-            if (str_ends_with($key, '()')) {
-                $method = str_replace('()', '', $key);
-
-                if ($reflection->hasMethod($method)) {
-                    return $reflection->getMethod($method)->isPublic();
-                }
-            }
+        if (is_array($this->element)) {
+            return array_key_exists($key, $this->element);
         }
 
-        return in_array($key, $this->getKeys(), true);
+        $keys = [];
+
+        $reflection = new ReflectionClass($this->element);
+
+        if ($reflection->hasMethod('__get')) {
+            return $reflection->getMethod('__get')->isPublic();
+        }
+
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            $keys[] = $property->getName();
+        }
+
+        foreach (get_object_vars($this->element) as $property => $value) {
+            $keys[] = $property;
+        }
+
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            $keys[] = $method->getName().'()';
+        }
+
+        return in_array($key, $keys, true);
     }
 
     /**

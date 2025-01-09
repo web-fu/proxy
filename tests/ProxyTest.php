@@ -44,6 +44,10 @@ class ProxyTest extends TestCase
      */
     public function hasDataProvider(): iterable
     {
+        $classWithDynamicProperties = new ClassWithAllowDynamicProperties();
+        /* @phpstan-ignore-next-line */
+        $classWithDynamicProperties->property = 'foo';
+
         yield 'array.key.int' => [
             'element'  => [1],
             'key'      => 0,
@@ -113,6 +117,11 @@ class ProxyTest extends TestCase
             },
             'key'      => 'method()',
             'expected' => false,
+        ];
+        yield 'class.dynamic_property.true' => [
+            'element'  => $classWithDynamicProperties,
+            'key'      => 'property',
+            'expected' => true,
         ];
     }
 
