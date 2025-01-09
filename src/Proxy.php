@@ -19,19 +19,42 @@ use WebFu\Reflection\ReflectionProperty;
 
 class Proxy
 {
+    /**
+     * @param array<mixed>|object $element
+     */
     public function __construct(private array|object &$element)
     {
     }
 
     public function has(int|string $key): bool
     {
-        if (is_array($this->element)) {
-            return array_key_exists($key, $this->element);
-        }
+        if (is_object($this->element)) {
+            $reflection = new ReflectionClass($this->element);
 
+            $key = (string) $key;
+
+            if ($reflection->hasProperty($key)) {
+                return $reflection->getProperty($key)?->isPublic() ?? false;
+            }
+
+            if ($reflection->hasMethod('__get')) {
+                return $reflection->getMethod('__get')->isPublic();
+            }
+
+            if (str_ends_with($key, '()')) {
+                $method = str_replace('()', '', $key);
+
+                if ($reflection->hasMethod($method)) {
+                    return $reflection->getMethod($method)->isPublic();
+                }
+            }
+        }
         return in_array($key, $this->getKeys(), true);
     }
 
+    /**
+     * @return array<int|string>
+     */
     public function getKeys(): array
     {
         if (is_array($this->element)) {
@@ -46,11 +69,15 @@ class Proxy
             $keys[] = $property->getName();
         }
 
+        foreach (get_object_vars($this->element) as $property => $value) {
+            $keys[] = $property;
+        }
+
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             $keys[] = $method->getName().'()';
         }
 
-        return $keys;
+        return array_values(array_unique($keys));
     }
 
     public function get(int|string $key): mixed
@@ -117,33 +144,44 @@ class Proxy
             return $reflection->hasMethod($method);
         }
 
-        /** @var ReflectionProperty $property */
-        $property = $reflection->getProperty($key);
+        if ($this->dynamicKeysAllowed()) {
+            return isset($this->element->{$key});
+        }
 
-        return $property->isInitialized($this->element);
+        return $reflection->getProperty($key)?->isInitialized($this->element) ?? false;
+    }
+
+    public function getProxy(int|string $key): Proxy
+    {
+        if (!$this->has($key)) {
+            throw new PathNotFoundException('Key `'.$key.'` not found');
+        }
+
+        $value = $this->get($key);
+
+        if (!is_array($value) && !is_object($value)) {
+            throw new UnsupportedOperationException('Cannot create a proxy for a scalar value');
+        }
+
+        return new self($value);
     }
 
     public function create(int|string $key, mixed $value): Proxy
     {
-        if ($this->has($key)) {
+        if (
+            $this->has($key)
+            && $this->isInitialised($key)
+        ) {
             return $this;
         }
 
         if (is_array($this->element)) {
-            return $this->set($key, $value);
+            $this->element[$key] = $value;
+
+            return $this;
         }
 
-        $reflection = new ReflectionClass($this->element);
-
-        $checkStdClass  = 'stdClass' === $reflection->getName();
-        $checkAttribute = [] !== $reflection->getAttributes('AllowDynamicProperties');
-        $checkMethod    = $reflection->hasMethod('__set');
-
-        if (
-            !$checkStdClass
-            && !$checkAttribute
-            && !$checkMethod
-        ) {
+        if (!$this->dynamicKeysAllowed()) {
             throw new UnsupportedOperationException('Cannot create a new property');
         }
 
@@ -175,5 +213,20 @@ class Proxy
         unset($this->element->{$key});
 
         return $this;
+    }
+
+    public function dynamicKeysAllowed(): bool
+    {
+        if (is_array($this->element)) {
+            return true;
+        }
+
+        $reflection = new ReflectionClass($this->element);
+
+        $checkStdClass  = 'stdClass' === $reflection->getName();
+        $checkAttribute = [] !== $reflection->getAttributes('AllowDynamicProperties');
+        $checkMethod    = $reflection->hasMethod('__set');
+
+        return $checkStdClass || $checkAttribute || $checkMethod;
     }
 }

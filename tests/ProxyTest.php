@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
 use WebFu\Proxy\PathNotFoundException;
 use WebFu\Proxy\Proxy;
 use WebFu\Proxy\Tests\TestData\SimpleClass;
+use WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties;
+use WebFu\Proxy\Tests\TestData\ClassWithMagicMethods;
 use WebFu\Proxy\UnsupportedOperationException;
 
 /**
@@ -26,7 +28,7 @@ class ProxyTest extends TestCase
 {
     /**
      * @covers ::has
-     *
+     * @param array<mixed>|object $element
      * @dataProvider hasDataProvider
      */
     public function testHas(array|object $element, int|string $key, bool $expected): void
@@ -36,7 +38,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<mixed[]>
+     * @return iterable<array{element: array<mixed>|object, key: int|string, expected:bool}>
      */
     public function hasDataProvider(): iterable
     {
@@ -60,6 +62,11 @@ class ProxyTest extends TestCase
                 public string $property;
             },
             'key'      => 'property',
+            'expected' => true,
+        ];
+        yield 'class.magic_method.exists' => [
+            'element' => new ClassWithMagicMethods(),
+            'key'      => 'any-property',
             'expected' => true,
         ];
         yield 'class.property.not-exists' => [
@@ -109,7 +116,8 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::getKeys
-     *
+     * @param array<mixed>|object $element
+     * @param array<int|string> $expected
      * @dataProvider getKeysProvider
      */
     public function testGetKeys(array|object $element, array $expected): void
@@ -119,7 +127,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: mixed[], expected: array<int|string>}>
+     * @return iterable<array{element: array<mixed>|object, expected: array<int|string>}>
      */
     public function getKeysProvider(): iterable
     {
@@ -158,7 +166,7 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::get
-     *
+     * @param array<mixed>|object $element
      * @dataProvider getDataProvider
      */
     public function testGet(array|object $element, int|string $key, mixed $expected): void
@@ -168,7 +176,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: object, key: string, expected: mixed}>
+     * @return iterable<array{element: array<mixed>|object, key: int|string, expected: mixed}>
      */
     public function getDataProvider(): iterable
     {
@@ -290,23 +298,62 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::isInitialised
+     * @param array<mixed>|object $element
+     * @dataProvider initialisedDataProvider
      */
-    public function testIsInitialised(): void
+    public function testIsInitialised(array|object $element, int|string $key, bool $expected): void
     {
-        $element = [
-            'foo' => null,
-        ];
-
         $proxy = new Proxy($element);
-        $this->assertFalse($proxy->isInitialised('foo'));
+        $this->assertSame($expected, $proxy->isInitialised($key));
+    }
 
-        $element['foo'] = 0;
-        $this->assertTrue($proxy->isInitialised('foo'));
+    /**
+     * @return iterable<array{element: array<mixed>|object, key: int|string, expected: mixed}>
+     */
+    public function initialisedDataProvider(): iterable
+    {
+        $classWithDynamicProperties = new ClassWithAllowDynamicProperties();
+        /** @phpstan-ignore-next-line */
+        $classWithDynamicProperties->property = 'foo';
 
-        $element = new SimpleClass();
-        $proxy   = new Proxy($element);
-        $this->assertTrue($proxy->isInitialised('public'));
-        $this->assertFalse($proxy->isInitialised('notInitialised'));
+        yield 'array.true' => [
+            'element'  => ['foo' => 1],
+            'key'      => 'foo',
+            'expected' => true,
+        ];
+        yield 'array.false' => [
+            'element'  => ['foo' => null],
+            'key'      => 'foo',
+            'expected' => false,
+        ];
+        yield 'class.property.true' => [
+            'element' => new class {
+                public string $property = 'foo';
+            },
+            'key'      => 'property',
+            'expected' => true,
+        ];
+        yield 'class.property.false' => [
+            'element' => new class {
+                public string $property;
+            },
+            'key'      => 'property',
+            'expected' => false,
+        ];
+        yield 'class.dynamic_property.true' => [
+            'element' => $classWithDynamicProperties,
+            'key'      => 'property',
+            'expected' => true,
+        ];
+        yield 'class.method.true' => [
+            'element' => new class {
+                public function method(): void
+                {
+                }
+            },
+            'key'      => 'method()',
+            'expected' => true,
+        ];
     }
 
     /**
@@ -333,31 +380,73 @@ class ProxyTest extends TestCase
     }
 
     /**
+     * @covers ::getProxy
+     */
+    public function testGetProxy(): void
+    {
+        $element = new stdClass();
+        $element->foo = new SimpleClass();
+        $proxy = new Proxy($element);
+        $this->assertInstanceOf(Proxy::class, $proxy->getProxy('foo'));
+
+    }
+
+    public function testGetProxyFailsIfPathNotFound(): void
+    {
+        $element = new stdClass();
+        $proxy = new Proxy($element);
+
+        $this->expectException(PathNotFoundException::class);
+        $this->expectExceptionMessage('Key `foo` not found');
+
+        $proxy->getProxy('foo');
+    }
+
+    /**
+     * @covers ::getProxy
+     */
+    public function testGetProxyFailsIfScalarValue(): void
+    {
+        $element = new stdClass();
+        $element->foo = 'bar';
+        $proxy = new Proxy($element);
+
+        $this->expectException(UnsupportedOperationException::class);
+        $this->expectExceptionMessage('Cannot create a proxy for a scalar value');
+
+        $proxy->getProxy('foo');
+    }
+
+    /**
      * @covers ::create
      *
-     * @dataProvider classWithDynamicPropertiesProvider
+     * @param array<mixed>|object $element
+     * @dataProvider createProvider
      */
-    public function testCreate(object $element): void
+    public function testCreate(array|object $element): void
     {
         $proxy = new Proxy($element);
         $proxy->create('foo', new SimpleClass());
 
-        $this->assertInstanceOf(SimpleClass::class, $element->foo);
+        $this->assertInstanceOf(SimpleClass::class, $proxy->get('foo'));
     }
 
     /**
-     * @return iterable<array{element: object}>
+     * @return iterable<array{element: array<mixed>|object}>
      */
-    public function classWithDynamicPropertiesProvider(): iterable
+    public function createProvider(): iterable
     {
+        yield 'array' => [
+            'element' => [],
+        ];
         yield 'stdClass' => [
             'element' => new stdClass(),
         ];
         yield 'classAllowDynamicProperties' => [
-            'element' => new WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties(),
+            'element' => new ClassWithAllowDynamicProperties(),
         ];
         yield 'classWithMagicMethods' => [
-            'element' => new WebFu\Proxy\Tests\TestData\ClassWithMagicMethods(),
+            'element' => new ClassWithMagicMethods(),
         ];
     }
 
@@ -458,5 +547,43 @@ class ProxyTest extends TestCase
         $this->expectExceptionMessage('Cannot unset a class method');
 
         $proxy->unset('method()');
+    }
+
+    /**
+     * @covers ::dynamicKeysAllowed
+     * @param array<mixed>|object $element
+     * @dataProvider dynamicKeysAllowedDataProvider
+     */
+    public function testDynamicKeysAllowed(array|object $element, bool $expected): void
+    {
+        $proxy = new Proxy($element);
+        $this->assertSame($expected, $proxy->dynamicKeysAllowed());
+    }
+
+    /**
+     * @return iterable<array{element: array<mixed>|object, expected: bool}>
+     */
+    public function dynamicKeysAllowedDataProvider(): iterable
+    {
+        yield 'array' => [
+            'element' => [],
+            'expected' => true,
+        ];
+        yield 'stdClass' => [
+            'element' => new stdClass(),
+            'expected' => true,
+        ];
+        yield 'classWithAllowDynamicProperties' => [
+            'element' => new ClassWithAllowDynamicProperties(),
+            'expected' => true,
+        ];
+        yield 'classWithMagicMethods' => [
+            'element' => new ClassWithMagicMethods(),
+            'expected' => true,
+        ];
+        yield 'class' => [
+            'element' => new SimpleClass(),
+            'expected' => false,
+        ];
     }
 }

@@ -17,4 +17,8 @@ class SimpleClass
 {
     public string $public = 'public';
     public string $notInitialised;
+
+    public function publicMethod(): void
+    {
+    }
 }
