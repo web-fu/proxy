@@ -17,55 +17,45 @@ This is a spin-off of the [PHP Dot Notation](https://github.com/web-fu/php-dot-n
 composer require web-fu/proxy
 ```
 
-## Usage
-For arrays:
+## Create a Proxy
 ```php
 $element = [
     'foo' => 'bar',
+    'zod' => [
+        'baz' => 'qux',
+    ],
 ];
 
-$proxy = new ArrayProxy($element);
+$proxy = new Proxy($element);
+```
 
-echo $proxy->has('foo'); //true
-echo $proxy->isInitialised('foo'); //true
+## Getting and setting values
+```php
 echo $proxy->get('foo'); //bar
-
 $proxy->set('foo', 'baz');
-
 echo $element['foo']; //baz
 ```
 
-For objects:
+## Checking keys
 ```php
-$element = new class() {
-    public string $property = 'test';
-    
-    public function method(): string
-    {
-        return 'foo';
-    }
-};
-
-$proxy = new ClassProxy($element);
-
-echo $proxy->has('property'); //true
-echo $proxy->isInitialised('property'); //true
-echo $proxy->get('property'); //test
-
-echo $proxy->has('method()'); //true
-echo $proxy->isInitialised('method()'); //true
-echo $proxy->get('method()'); //foo
-
-$proxy->set('property', 'baz');
-
-echo $element->property; //baz
+echo $proxy->has('foo'); //true
+echo $proxy->isInitialised('foo'); //true
+echo $proxy->dynamicKeysAllowed(); //true;
 ```
 
-For both:
+## Creating and destroying keys
 ```php
-$element = [
-    'foo' => 'bar',
-];
+$proxy->create('rol', 'foo');
+echo $element['rol']; //foo
 
-$proxy = ProxyFactory::create($element);
+$proxy->unset('zod');
+var_dump($element); //['foo' => 'bar']
 ```
+
+## Getting a proxy for a key
+```php
+$proxy->getProxy('zod')->set('baz', 'qux');
+echo $element['zod']['baz']; //qux
+``` 
+
+See `/examples` folder for full examples
