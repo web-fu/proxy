@@ -12,12 +12,12 @@ declare(strict_types=1);
  */
 
 use PHPUnit\Framework\TestCase;
-use WebFu\Proxy\PathNotFoundException;
+use WebFu\Proxy\Exception\KeyNotFoundException;
+use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Proxy\Proxy;
 use WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties;
 use WebFu\Proxy\Tests\TestData\ClassWithMagicMethods;
 use WebFu\Proxy\Tests\TestData\SimpleClass;
-use WebFu\Proxy\UnsupportedOperationException;
 
 /**
  * @coversDefaultClass \WebFu\Proxy\Proxy
@@ -231,12 +231,12 @@ class ProxyTest extends TestCase
     {
         $element = ['foo' => 'string'];
         $wrapper = new Proxy($element);
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $wrapper->get('bar');
 
         $element = new SimpleClass();
         $wrapper = new Proxy($element);
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $wrapper->get('not-exists');
     }
 
@@ -252,7 +252,7 @@ class ProxyTest extends TestCase
             private string $property = 'foo';
         };
 
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `property` not found');
 
         $proxy = new Proxy($element);
@@ -282,13 +282,13 @@ class ProxyTest extends TestCase
     {
         $element = ['foo' => 'string'];
         $wrapper = new Proxy($element);
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `not-exists` not found');
         $wrapper->set('not-exists', 'new');
 
         $element = new SimpleClass();
         $wrapper = new Proxy($element);
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `not-exists` not found');
         $wrapper->set('not-exists', 'new');
     }
@@ -380,7 +380,7 @@ class ProxyTest extends TestCase
     {
         $element = ['foo' => 'string'];
 
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `bar` not found');
 
         $proxy = new Proxy($element);
@@ -389,7 +389,7 @@ class ProxyTest extends TestCase
         $element = new class {
         };
 
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `foo` not found');
 
         $proxy = new Proxy($element);
@@ -412,7 +412,7 @@ class ProxyTest extends TestCase
         $element = new stdClass();
         $proxy   = new Proxy($element);
 
-        $this->expectException(PathNotFoundException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `foo` not found');
 
         $proxy->getProxy('foo');

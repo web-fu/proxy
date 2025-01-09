@@ -11,10 +11,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace WebFu\Proxy;
+namespace WebFu\Proxy\Exception;
 
 use Exception;
 
-class PathNotFoundException extends Exception
+class KeyNotFoundException extends Exception
 {
 }

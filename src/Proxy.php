@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace WebFu\Proxy;
 
+use WebFu\Proxy\Exception\KeyNotFoundException;
+use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Reflection\ReflectionClass;
 use WebFu\Reflection\ReflectionMethod;
 use WebFu\Reflection\ReflectionProperty;
@@ -97,14 +99,14 @@ class Proxy
      *
      * @param int|string $key
      *
-     * @throws PathNotFoundException
+     * @throws KeyNotFoundException
      *
      * @return mixed
      */
     public function get(int|string $key): mixed
     {
         if (!$this->has($key)) {
-            throw new PathNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException('Key `'.$key.'` not found');
         }
 
         if (is_array($this->element)) {
@@ -128,15 +130,15 @@ class Proxy
      * @param int|string $key
      * @param mixed      $value
      *
-     * @throws PathNotFoundException
      * @throws UnsupportedOperationException
+     * @throws KeyNotFoundException
      *
      * @return $this
      */
     public function set(int|string $key, mixed $value): self
     {
         if (!$this->has($key)) {
-            throw new PathNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException('Key `'.$key.'` not found');
         }
 
         $key = (string) $key;
@@ -161,14 +163,14 @@ class Proxy
      *
      * @param int|string $key
      *
-     * @throws PathNotFoundException
+     * @throws KeyNotFoundException
      *
      * @return bool
      */
     public function isInitialised(int|string $key): bool
     {
         if (!$this->has($key)) {
-            throw new PathNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException('Key `'.$key.'` not found');
         }
 
         if (is_array($this->element)) {
@@ -197,15 +199,15 @@ class Proxy
      *
      * @param int|string $key
      *
-     * @throws PathNotFoundException
      * @throws UnsupportedOperationException
+     * @throws KeyNotFoundException
      *
      * @return self
      */
     public function getProxy(int|string $key): self
     {
         if (!$this->has($key)) {
-            throw new PathNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException('Key `'.$key.'` not found');
         }
 
         $value = $this->get($key);
@@ -223,8 +225,8 @@ class Proxy
      * @param int|string $key
      * @param mixed      $value
      *
-     * @throws PathNotFoundException
      * @throws UnsupportedOperationException
+     * @throws KeyNotFoundException
      *
      * @return $this
      */
