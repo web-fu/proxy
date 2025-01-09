@@ -14,9 +14,9 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use WebFu\Proxy\PathNotFoundException;
 use WebFu\Proxy\Proxy;
-use WebFu\Proxy\Tests\TestData\SimpleClass;
 use WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties;
 use WebFu\Proxy\Tests\TestData\ClassWithMagicMethods;
+use WebFu\Proxy\Tests\TestData\SimpleClass;
 use WebFu\Proxy\UnsupportedOperationException;
 
 /**
@@ -28,7 +28,9 @@ class ProxyTest extends TestCase
 {
     /**
      * @covers ::has
+     *
      * @param array<mixed>|object $element
+     *
      * @dataProvider hasDataProvider
      */
     public function testHas(array|object $element, int|string $key, bool $expected): void
@@ -65,7 +67,7 @@ class ProxyTest extends TestCase
             'expected' => true,
         ];
         yield 'class.magic_method.exists' => [
-            'element' => new ClassWithMagicMethods(),
+            'element'  => new ClassWithMagicMethods(),
             'key'      => 'any-property',
             'expected' => true,
         ];
@@ -116,9 +118,11 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::getKeys
+     *
      * @param array<mixed>|object $element
-     * @param array<int|string> $expected
-     * @dataProvider getKeysProvider
+     * @param array<int|string>   $expected
+     *
+     * @dataProvider getKeysDataProvider
      */
     public function testGetKeys(array|object $element, array $expected): void
     {
@@ -129,7 +133,7 @@ class ProxyTest extends TestCase
     /**
      * @return iterable<array{element: array<mixed>|object, expected: array<int|string>}>
      */
-    public function getKeysProvider(): iterable
+    public function getKeysDataProvider(): iterable
     {
         yield 'numeric.keys' => [
             'element'  => [1, 2, 3],
@@ -166,7 +170,9 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::get
+     *
      * @param array<mixed>|object $element
+     *
      * @dataProvider getDataProvider
      */
     public function testGet(array|object $element, int|string $key, mixed $expected): void
@@ -298,7 +304,9 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::isInitialised
+     *
      * @param array<mixed>|object $element
+     *
      * @dataProvider initialisedDataProvider
      */
     public function testIsInitialised(array|object $element, int|string $key, bool $expected): void
@@ -313,7 +321,7 @@ class ProxyTest extends TestCase
     public function initialisedDataProvider(): iterable
     {
         $classWithDynamicProperties = new ClassWithAllowDynamicProperties();
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         $classWithDynamicProperties->property = 'foo';
 
         yield 'array.true' => [
@@ -341,7 +349,7 @@ class ProxyTest extends TestCase
             'expected' => false,
         ];
         yield 'class.dynamic_property.true' => [
-            'element' => $classWithDynamicProperties,
+            'element'  => $classWithDynamicProperties,
             'key'      => 'property',
             'expected' => true,
         ];
@@ -384,17 +392,16 @@ class ProxyTest extends TestCase
      */
     public function testGetProxy(): void
     {
-        $element = new stdClass();
+        $element      = new stdClass();
         $element->foo = new SimpleClass();
-        $proxy = new Proxy($element);
+        $proxy        = new Proxy($element);
         $this->assertInstanceOf(Proxy::class, $proxy->getProxy('foo'));
-
     }
 
     public function testGetProxyFailsIfPathNotFound(): void
     {
         $element = new stdClass();
-        $proxy = new Proxy($element);
+        $proxy   = new Proxy($element);
 
         $this->expectException(PathNotFoundException::class);
         $this->expectExceptionMessage('Key `foo` not found');
@@ -407,9 +414,9 @@ class ProxyTest extends TestCase
      */
     public function testGetProxyFailsIfScalarValue(): void
     {
-        $element = new stdClass();
+        $element      = new stdClass();
         $element->foo = 'bar';
-        $proxy = new Proxy($element);
+        $proxy        = new Proxy($element);
 
         $this->expectException(UnsupportedOperationException::class);
         $this->expectExceptionMessage('Cannot create a proxy for a scalar value');
@@ -421,7 +428,8 @@ class ProxyTest extends TestCase
      * @covers ::create
      *
      * @param array<mixed>|object $element
-     * @dataProvider createProvider
+     *
+     * @dataProvider createDataProvider
      */
     public function testCreate(array|object $element): void
     {
@@ -434,7 +442,7 @@ class ProxyTest extends TestCase
     /**
      * @return iterable<array{element: array<mixed>|object}>
      */
-    public function createProvider(): iterable
+    public function createDataProvider(): iterable
     {
         yield 'array' => [
             'element' => [],
@@ -551,7 +559,9 @@ class ProxyTest extends TestCase
 
     /**
      * @covers ::dynamicKeysAllowed
+     *
      * @param array<mixed>|object $element
+     *
      * @dataProvider dynamicKeysAllowedDataProvider
      */
     public function testDynamicKeysAllowed(array|object $element, bool $expected): void
@@ -566,23 +576,23 @@ class ProxyTest extends TestCase
     public function dynamicKeysAllowedDataProvider(): iterable
     {
         yield 'array' => [
-            'element' => [],
+            'element'  => [],
             'expected' => true,
         ];
         yield 'stdClass' => [
-            'element' => new stdClass(),
+            'element'  => new stdClass(),
             'expected' => true,
         ];
         yield 'classWithAllowDynamicProperties' => [
-            'element' => new ClassWithAllowDynamicProperties(),
+            'element'  => new ClassWithAllowDynamicProperties(),
             'expected' => true,
         ];
         yield 'classWithMagicMethods' => [
-            'element' => new ClassWithMagicMethods(),
+            'element'  => new ClassWithMagicMethods(),
             'expected' => true,
         ];
         yield 'class' => [
-            'element' => new SimpleClass(),
+            'element'  => new SimpleClass(),
             'expected' => false,
         ];
     }

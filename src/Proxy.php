@@ -49,6 +49,7 @@ class Proxy
                 }
             }
         }
+
         return in_array($key, $this->getKeys(), true);
     }
 
@@ -101,7 +102,7 @@ class Proxy
         return $this->element->{$key};
     }
 
-    public function set(int|string $key, mixed $value): Proxy
+    public function set(int|string $key, mixed $value): self
     {
         if (!$this->has($key)) {
             throw new PathNotFoundException('Key `'.$key.'` not found');
@@ -151,7 +152,7 @@ class Proxy
         return $reflection->getProperty($key)?->isInitialized($this->element) ?? false;
     }
 
-    public function getProxy(int|string $key): Proxy
+    public function getProxy(int|string $key): self
     {
         if (!$this->has($key)) {
             throw new PathNotFoundException('Key `'.$key.'` not found');
@@ -166,7 +167,7 @@ class Proxy
         return new self($value);
     }
 
-    public function create(int|string $key, mixed $value): Proxy
+    public function create(int|string $key, mixed $value): self
     {
         if (
             $this->has($key)
@@ -192,7 +193,7 @@ class Proxy
         return $this;
     }
 
-    public function unset(int|string $key): Proxy
+    public function unset(int|string $key): self
     {
         if (!$this->has($key)) {
             return $this;
