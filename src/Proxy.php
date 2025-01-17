@@ -106,7 +106,7 @@ class Proxy
     public function get(int|string $key): mixed
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         if (is_array($this->element)) {
@@ -138,7 +138,7 @@ class Proxy
     public function set(int|string $key, mixed $value): self
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         $key = (string) $key;
@@ -170,7 +170,7 @@ class Proxy
     public function isInitialised(int|string $key): bool
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         if (is_array($this->element)) {
@@ -207,7 +207,7 @@ class Proxy
     public function getProxy(int|string $key): self
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         $value = $this->get($key);
