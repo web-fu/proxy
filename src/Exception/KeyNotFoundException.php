@@ -17,8 +17,8 @@ use Exception;
 
 class KeyNotFoundException extends Exception
 {
-    public function __construct(string $key)
+    public function __construct(int|string $key)
     {
-        parent::__construct('Key `'.$key.'` not found');
+        parent::__construct(sprintf('Key `%s` not found', $key));
     }
 }
