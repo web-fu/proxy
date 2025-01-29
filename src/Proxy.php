@@ -156,7 +156,9 @@ class Proxy
             return $this;
         }
 
-        $this->element->{$key} = $value;
+        $reflectionObject = new ReflectionObject($this->element);
+
+        $reflectionObject->getProperty($key)->setValue($this->element, $value);
 
         return $this;
     }
