@@ -17,6 +17,7 @@ use WebFu\Proxy\Exception\KeyNotFoundException;
 use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Reflection\ReflectionClass;
 use WebFu\Reflection\ReflectionMethod;
+use WebFu\Reflection\ReflectionObject;
 use WebFu\Reflection\ReflectionProperty;
 
 class Proxy
@@ -115,13 +116,15 @@ class Proxy
 
         $key = (string) $key;
 
+        $reflectionObject = new ReflectionObject($this->element);
+
         if (str_ends_with($key, '()')) {
             $method = str_replace('()', '', $key);
 
-            return $this->element->{$method}();
+            return $reflectionObject->getMethod($method)->invoke($this->element);
         }
 
-        return $this->element->{$key};
+        return $reflectionObject->getProperty($key)->getValue($this->element);
     }
 
     /**
