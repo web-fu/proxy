@@ -116,15 +116,19 @@ class Proxy
 
         $key = (string) $key;
 
-        $reflectionObject = new ReflectionObject($this->element);
+        $reflection = new ReflectionObject($this->element);
 
         if (str_ends_with($key, '()')) {
             $method = str_replace('()', '', $key);
 
-            return $reflectionObject->getMethod($method)->invoke($this->element);
+            return $reflection->getMethod($method)->invoke($this->element);
         }
 
-        return $reflectionObject->getProperty($key)->getValue($this->element);
+        if ($reflection->hasProperty($key)) {
+            return $reflection->getProperty($key)?->getValue($this->element);
+        }
+
+        return $this->element->{$key};
     }
 
     /**
@@ -192,11 +196,15 @@ class Proxy
             return $reflection->hasMethod($method);
         }
 
+        if ($reflection->hasProperty($key)) {
+            return $reflection->getProperty($key)?->isInitialized($this->element);
+        }
+
         if ($this->dynamicKeysAllowed()) {
             return isset($this->element->{$key});
         }
 
-        return $reflection->getProperty($key)?->isInitialized($this->element) ?? false;
+        return false;
     }
 
     /**
