@@ -17,6 +17,7 @@ use WebFu\Proxy\Exception\KeyNotFoundException;
 use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Reflection\ReflectionClass;
 use WebFu\Reflection\ReflectionMethod;
+use WebFu\Reflection\ReflectionObject;
 use WebFu\Reflection\ReflectionProperty;
 
 class Proxy
@@ -106,7 +107,7 @@ class Proxy
     public function get(int|string $key): mixed
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         if (is_array($this->element)) {
@@ -115,10 +116,16 @@ class Proxy
 
         $key = (string) $key;
 
+        $reflection = new ReflectionObject($this->element);
+
         if (str_ends_with($key, '()')) {
             $method = str_replace('()', '', $key);
 
-            return $this->element->{$method}();
+            return $reflection->getMethod($method)->invoke($this->element);
+        }
+
+        if ($reflection->hasProperty($key)) {
+            return $reflection->getProperty($key)?->getValue($this->element);
         }
 
         return $this->element->{$key};
@@ -138,7 +145,7 @@ class Proxy
     public function set(int|string $key, mixed $value): self
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         $key = (string) $key;
@@ -153,7 +160,9 @@ class Proxy
             return $this;
         }
 
-        $this->element->{$key} = $value;
+        $reflectionObject = new ReflectionObject($this->element);
+
+        $reflectionObject->getProperty($key)?->setValue($this->element, $value);
 
         return $this;
     }
@@ -170,7 +179,7 @@ class Proxy
     public function isInitialised(int|string $key): bool
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         if (is_array($this->element)) {
@@ -187,11 +196,15 @@ class Proxy
             return $reflection->hasMethod($method);
         }
 
+        if ($reflection->hasProperty($key)) {
+            return $reflection->getProperty($key)?->isInitialized($this->element) ?? false;
+        }
+
         if ($this->dynamicKeysAllowed()) {
             return isset($this->element->{$key});
         }
 
-        return $reflection->getProperty($key)?->isInitialized($this->element) ?? false;
+        return false;
     }
 
     /**
@@ -207,7 +220,7 @@ class Proxy
     public function getProxy(int|string $key): self
     {
         if (!$this->has($key)) {
-            throw new KeyNotFoundException('Key `'.$key.'` not found');
+            throw new KeyNotFoundException($key);
         }
 
         $value = $this->get($key);
