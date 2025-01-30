@@ -162,7 +162,7 @@ class Proxy
 
         $reflectionObject = new ReflectionObject($this->element);
 
-        $reflectionObject->getProperty($key)->setValue($this->element, $value);
+        $reflectionObject->getProperty($key)?->setValue($this->element, $value);
 
         return $this;
     }
@@ -197,7 +197,7 @@ class Proxy
         }
 
         if ($reflection->hasProperty($key)) {
-            return $reflection->getProperty($key)?->isInitialized($this->element);
+            return $reflection->getProperty($key)?->isInitialized($this->element) ?? false;
         }
 
         if ($this->dynamicKeysAllowed()) {
