@@ -239,26 +239,21 @@ class Proxy
      * @param mixed      $value
      *
      * @throws UnsupportedOperationException
-     * @throws KeyNotFoundException
      *
      * @return $this
      */
     public function create(int|string $key, mixed $value): self
     {
-        if (
-            $this->has($key)
-            && $this->isInitialised($key)
-        ) {
-            return $this;
-        }
-
         if (is_array($this->element)) {
             $this->element[$key] = $value;
 
             return $this;
         }
 
-        if (!$this->dynamicKeysAllowed()) {
+        if (
+            !$this->has($key)
+            && !$this->dynamicKeysAllowed()
+        ) {
             throw new UnsupportedOperationException('Cannot create a new property');
         }
 
