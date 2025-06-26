@@ -11,7 +11,19 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+namespace WebFu\Proxy\Tests;
+
+/*
+ * This file is part of web-fu/proxy
+ *
+ * @copyright Web-Fu <info@web-fu.it>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use WebFu\Proxy\Exception\KeyNotFoundException;
 use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Proxy\Proxy;
@@ -470,19 +482,22 @@ class ProxyTest extends TestCase
     /**
      * @covers ::create
      */
-    public function testCreateChangesNothingIfPropertyAlreadyExists(): void
+    public function testCreateWorkAsSetIfPropertyExists(): void
     {
         $element              = new stdClass();
         $element->foo         = new SimpleClass();
         $element->foo->public = 'test';
 
+        $foo         = new SimpleClass();
+        $foo->public = 'test2';
+
         $proxy = new Proxy($element);
 
-        $proxy->create('foo', SimpleClass::class);
+        $proxy->create('foo', $foo);
 
         $expected              = new stdClass();
         $expected->foo         = new SimpleClass();
-        $expected->foo->public = 'test';
+        $expected->foo->public = 'test2';
 
         $this->assertEquals($expected, $element);
     }
