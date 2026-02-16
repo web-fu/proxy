@@ -25,6 +25,7 @@ namespace WebFu\Proxy\Tests;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use WebFu\Proxy\Exception\KeyNotFoundException;
+use WebFu\Proxy\Exception\KeyNotInitializedException;
 use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Proxy\Proxy;
 use WebFu\Proxy\Tests\TestData\ClassWithAllowDynamicProperties;
@@ -266,6 +267,32 @@ class ProxyTest extends TestCase
 
         $this->expectException(KeyNotFoundException::class);
         $this->expectExceptionMessage('Key `property` not found');
+
+        $proxy = new Proxy($element);
+        $proxy->get('property');
+    }
+
+    public function testGetFailsIfKeyIsProtected(): void
+    {
+        $element = new class {
+            protected string $property = 'foo';
+        };
+
+        $this->expectException(KeyNotFoundException::class);
+        $this->expectExceptionMessage('Key `property` not found');
+
+        $proxy = new Proxy($element);
+        $proxy->get('property');
+    }
+
+    public function testGetFailsIfKeyIsNotInitialized(): void
+    {
+        $element = new class {
+            public string $property;
+        };
+
+        $this->expectException(KeyNotInitializedException::class);
+        $this->expectExceptionMessage('Key `property` is not initialized');
 
         $proxy = new Proxy($element);
         $proxy->get('property');

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace WebFu\Proxy;
 
 use WebFu\Proxy\Exception\KeyNotFoundException;
+use WebFu\Proxy\Exception\KeyNotInitializedException;
 use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Reflection\ReflectionClass;
 use WebFu\Reflection\ReflectionMethod;
@@ -125,6 +126,14 @@ class Proxy
         }
 
         if ($reflection->hasProperty($key)) {
+            $property = $reflection->getProperty($key);
+
+            assert($property instanceof ReflectionProperty);
+
+            if (!$property->isInitialized($this->element)) {
+                throw new KeyNotInitializedException($key);
+            }
+
             return $reflection->getProperty($key)?->getValue($this->element);
         }
 
