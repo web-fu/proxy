@@ -232,6 +232,10 @@ class Proxy
             throw new KeyNotFoundException($key);
         }
 
+        if (!$this->isInitialised($key)) {
+            throw new KeyNotInitializedException($key);
+        }
+
         $value = $this->get($key);
 
         if (!is_array($value) && !is_object($value)) {
