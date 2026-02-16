@@ -24,7 +24,7 @@ use WebFu\Reflection\ReflectionProperty;
 class Proxy
 {
     /**
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      */
     public function __construct(private array|object &$element)
     {

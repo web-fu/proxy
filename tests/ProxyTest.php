@@ -42,7 +42,7 @@ class ProxyTest extends TestCase
     /**
      * @covers ::has
      *
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      *
      * @dataProvider hasDataProvider
      */
@@ -53,7 +53,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: array<mixed>|object, key: int|string, expected:bool}>
+     * @return iterable<array{element: object|array<array-key, mixed>, key: int|string, expected:bool}>
      */
     public function hasDataProvider(): iterable
     {
@@ -141,8 +141,8 @@ class ProxyTest extends TestCase
     /**
      * @covers ::getKeys
      *
-     * @param array<mixed>|object $element
-     * @param array<int|string>   $expected
+     * @param object|array<array-key, mixed> $element
+     * @param array<int|string>              $expected
      *
      * @dataProvider getKeysDataProvider
      */
@@ -153,7 +153,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: array<mixed>|object, expected: array<int|string>}>
+     * @return iterable<array{element: object|array<array-key, mixed>, expected: array<int|string>}>
      */
     public function getKeysDataProvider(): iterable
     {
@@ -193,7 +193,7 @@ class ProxyTest extends TestCase
     /**
      * @covers ::get
      *
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      *
      * @dataProvider getDataProvider
      */
@@ -204,7 +204,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: array<mixed>|object, key: int|string, expected: mixed}>
+     * @return iterable<array{element: object|array<array-key, mixed>, key: int|string, expected: mixed}>
      */
     public function getDataProvider(): iterable
     {
@@ -353,7 +353,7 @@ class ProxyTest extends TestCase
     /**
      * @covers ::isInitialised
      *
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      *
      * @dataProvider initialisedDataProvider
      */
@@ -364,7 +364,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: array<mixed>|object, key: int|string, expected: mixed}>
+     * @return iterable<array{element: object|array<array-key, mixed>, key: int|string, expected: mixed}>
      */
     public function initialisedDataProvider(): iterable
     {
@@ -475,7 +475,7 @@ class ProxyTest extends TestCase
     /**
      * @covers ::create
      *
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      *
      * @dataProvider createDataProvider
      */
@@ -488,7 +488,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: array<mixed>|object}>
+     * @return iterable<array{element: object|array<array-key, mixed>}>
      */
     public function createDataProvider(): iterable
     {
@@ -611,7 +611,7 @@ class ProxyTest extends TestCase
     /**
      * @covers ::dynamicKeysAllowed
      *
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      *
      * @dataProvider dynamicKeysAllowedDataProvider
      */
@@ -622,7 +622,7 @@ class ProxyTest extends TestCase
     }
 
     /**
-     * @return iterable<array{element: array<mixed>|object, expected: bool}>
+     * @return iterable<array{element: object|array<array-key, mixed>, expected: bool}>
      */
     public function dynamicKeysAllowedDataProvider(): iterable
     {
