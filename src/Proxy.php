@@ -26,7 +26,7 @@ class Proxy
     /**
      * @param object|array<array-key, mixed> $element
      */
-    public function __construct(private array|object &$element)
+    public function __construct(protected array|object &$element)
     {
     }
 
@@ -144,7 +144,6 @@ class Proxy
      * Set the value of a key in the element, failing if the key does not exist.
      *
      * @param int|string $key
-     * @param mixed      $value
      *
      * @throws UnsupportedOperationException
      * @throws KeyNotFoundException
@@ -249,7 +248,6 @@ class Proxy
      * Create a new key in the element, failing if it's not possible.
      *
      * @param int|string $key
-     * @param mixed      $value
      *
      * @throws UnsupportedOperationException
      *
