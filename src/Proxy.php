@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace WebFu\Proxy;
 
 use WebFu\Proxy\Exception\KeyNotFoundException;
+use WebFu\Proxy\Exception\KeyNotInitializedException;
 use WebFu\Proxy\Exception\UnsupportedOperationException;
 use WebFu\Reflection\ReflectionClass;
 use WebFu\Reflection\ReflectionMethod;
@@ -23,9 +24,9 @@ use WebFu\Reflection\ReflectionProperty;
 class Proxy
 {
     /**
-     * @param array<mixed>|object $element
+     * @param object|array<array-key, mixed> $element
      */
-    public function __construct(private array|object &$element)
+    public function __construct(protected array|object &$element)
     {
     }
 
@@ -125,6 +126,14 @@ class Proxy
         }
 
         if ($reflection->hasProperty($key)) {
+            $property = $reflection->getProperty($key);
+
+            assert($property instanceof ReflectionProperty);
+
+            if (!$property->isInitialized($this->element)) {
+                throw new KeyNotInitializedException($key);
+            }
+
             return $reflection->getProperty($key)?->getValue($this->element);
         }
 
@@ -135,7 +144,6 @@ class Proxy
      * Set the value of a key in the element, failing if the key does not exist.
      *
      * @param int|string $key
-     * @param mixed      $value
      *
      * @throws UnsupportedOperationException
      * @throws KeyNotFoundException
@@ -223,6 +231,10 @@ class Proxy
             throw new KeyNotFoundException($key);
         }
 
+        if (!$this->isInitialised($key)) {
+            throw new KeyNotInitializedException($key);
+        }
+
         $value = $this->get($key);
 
         if (!is_array($value) && !is_object($value)) {
@@ -236,7 +248,6 @@ class Proxy
      * Create a new key in the element, failing if it's not possible.
      *
      * @param int|string $key
-     * @param mixed      $value
      *
      * @throws UnsupportedOperationException
      *
