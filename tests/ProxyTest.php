@@ -306,11 +306,15 @@ class ProxyTest extends TestCase
         $element = ['foo' => 'string'];
         $wrapper = new Proxy($element);
         $wrapper->set('foo', 'new');
+
+        $this->assertIsArray($element);
         $this->assertSame('new', $element['foo']);
 
         $element = new SimpleClass();
         $wrapper = new Proxy($element);
         $wrapper->set('public', 'new');
+
+        $this->assertInstanceOf(SimpleClass::class, $element);
         $this->assertSame('new', $element->public);
     }
 
@@ -555,6 +559,8 @@ class ProxyTest extends TestCase
 
         $proxy = new Proxy($element);
         $proxy->unset('foo');
+
+        $this->assertIsArray($element);
         $this->assertArrayNotHasKey('foo', $element);
 
         $element = new class {
