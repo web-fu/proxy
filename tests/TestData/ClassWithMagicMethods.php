@@ -17,12 +17,12 @@ class ClassWithMagicMethods
 {
     private array $internal = [];
 
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->internal[$name];
     }
 
-    public function __set($name, $value): void
+    public function __set(string $name, mixed $value): void
     {
         $this->internal[$name] = $value;
     }
